@@ -20,17 +20,6 @@
   [goals goal]
   (om/transact! goals #(conj % goal)))
 
-(defn goal-view
-  [goal owner]
-  (reify
-    om/IRender
-    (render [_]
-      (dom/div #js {:className "row"}
-        (dom/div #js {:className "small-3 columns"} (:name goal))
-        (dom/div #js {:className "small-3 columns"} (:saved goal))
-        (dom/div #js {:className "small-3 columns"} (:amount goal))
-        (dom/div #js {:className "small-3 columns"} (:end goal))))))
-
 (defn input-view
   [goal owner]
   (reify
@@ -66,14 +55,44 @@
       (apply dom/form #js {:className "row"}
         (concat
           (for [label ["Name" "Amount" "Start" "End"]]
-            (om/build input-view changing-goal {:init-state {:label label
-                                                    :field (keyword (.toLowerCase label))
-                                                    :chan goal-changes}}))
+            (om/build input-view changing-goal {:init-state
+                                                {:label label
+                                                 :field (keyword (.toLowerCase label))
+                                                 :chan goal-changes}}))
           [(dom/div #js {:className "columns"}
              (dom/a #js {:onClick #(put! chan {:event :add-goal
                                                :goal changing-goal})
                          :className "button tiny"}
                     "Create Goal"))])))))
+
+(defn goal-view
+  [goal owner]
+  (reify
+    om/IInitState
+    (init-state [_]
+      {:is-editing? false
+       :goal-updates (chan)})
+    om/IWillMount
+    (will-mount [_]
+      (let [goal-updates (om/get-state owner :goal-updates)]
+        (go-loop []
+          (let [update-event (<! goal-updates)]
+            (om/update! goal (:goal update-event))
+            (om/set-state! owner :is-editing? false)
+            (recur)))))
+    om/IRenderState
+    (render-state [_ {:keys [is-editing? goal-updates]}]
+      (if is-editing?
+        (om/build goal-edit-view goal {:init-state {:chan goal-updates}})
+        (dom/div #js {:className "row"}
+          (dom/div #js {:className "small-3 columns"} (:name goal))
+          (dom/div #js {:className "small-2 columns"} (:saved goal))
+          (dom/div #js {:className "small-2 columns"} (:amount goal))
+          (dom/div #js {:className "small-3 columns"} (:end goal))
+          (dom/div #js {:className "small-2 columns"}
+            (dom/a #js {:onClick #(om/set-state! owner :is-editing? true)
+                        :className "button tiny"}
+                   "Edit")))))))
 
 (defn goals-view
   [goals owner]
