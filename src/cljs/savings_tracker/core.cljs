@@ -72,25 +72,34 @@
           [(dom/div #js {:className "columns"}
              (dom/a #js {:onClick #(put! chan {:event :add-goal
                                                :goal changing-goal})
-                         :className "button tiny"} "Create Goal"))])))))
+                         :className "button tiny"}
+                    "Create Goal"))])))))
 
 (defn goals-view
   [goals owner]
   (reify
     om/IInitState
     (init-state [_]
-      {:goals-updates (chan)})
+      {:goals-updates (chan)
+       :adding-goal? false})
     om/IWillMount
     (will-mount [_]
       (let [goals-updates (om/get-state owner :goals-updates)]
         (go-loop []
           (let [{:keys [event goal]} (<! goals-updates)]
             (add-goal goals goal)
+            (om/set-state! owner :adding-goal? false)
             (recur)))))
     om/IRenderState
-    (render-state [_ {:keys [goals-updates]}]
+    (render-state [_ {:keys [goals-updates adding-goal?]}]
       (apply dom/div nil
-        (om/build goal-edit-view {} {:init-state {:chan goals-updates}})
+        (if adding-goal?
+          (om/build goal-edit-view {} {:init-state {:chan goals-updates}})
+          (dom/div #js {:className "row"}
+            (dom/div #js {:className "columns"}
+              (dom/a #js {:onClick #(om/set-state! owner :adding-goal? true)
+                          :className "button tiny"}
+                     "Add Goal"))))
         (om/build-all goal-view goals)))))
 
 (defn main []
