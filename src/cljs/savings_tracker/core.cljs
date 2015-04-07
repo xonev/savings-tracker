@@ -25,35 +25,43 @@
   (reify
     om/IRender
     (render [_]
-      (dom/li nil (str (:name goal) " " (:saved goal) "/" (:amount goal) " " (:end goal))))))
+      (dom/div #js {:className "row"}
+        (dom/div #js {:className "small-3 columns"} (:name goal))
+        (dom/div #js {:className "small-3 columns"} (:saved goal))
+        (dom/div #js {:className "small-3 columns"} (:amount goal))
+        (dom/div #js {:className "small-3 columns"} (:end goal))))))
 
 (defn input-view
   [goal owner]
   (reify
     om/IRenderState
     (render-state [owner {:keys [label]}]
-      (dom/label nil
-        label
-        (dom/input #js {:type "text"})))))
+      (dom/div #js {:className "large-6 columns"}
+        (dom/label #js {:className "row collapse"}
+          (dom/div #js {:className "small-3 columns"}
+            (dom/span #js {:className "prefix"} label))
+          (dom/div #js {:className "small-9 columns"}
+            (dom/span nil (dom/input #js {:type "text"}))))))))
 
 (defn goal-edit-view
   [goal owner]
   (reify
     om/IRender
     (render [_]
-      (apply dom/div #js {:className "row"}
-        (for [label ["Name" "Start" "End" "Amount"]]
-          (om/build input-view goal {:init-state {:label label}}))))))
+      (apply dom/form #js {:className "row"}
+        (concat
+          (for [label ["Name" "Amount" "Start" "End"]]
+            (om/build input-view goal {:init-state {:label label}}))
+          [(dom/div #js {:className "columns"}
+             (dom/a #js {:className "button tiny"} "Create Goal"))])))))
 
 (defn goals-view
   [goals owner]
   (reify
     om/IRender
     (render [_]
-      (apply dom/ul nil (dom/li nil
-                          (om/build goal-edit-view {})
-                          (dom/a #js {:onClick #(add-goal goals) :className "button tiny"} "Add Goal"))
-                        (om/build-all goal-view goals)))))
+      (apply dom/div nil
+        (om/build-all goal-view goals)))))
 
 (defn main []
   (om/root
@@ -62,8 +70,12 @@
         om/IRender
         (render [_]
           (dom/div nil
-            (dom/h1 nil "Savings Tracker")
-            (dom/h2 nil (str "Balance: " (:balance app)))
+            (dom/div #js {:className "row"}
+              (dom/div #js {:className "small-5 columns"}
+                (dom/h1 nil "Savings Tracker"))
+              (dom/div #js {:className "small-7 columns"}
+                (dom/h2 #js {:className "right"} (str "Balance: " (:balance app)))))
+            (om/build goal-edit-view {})
             (om/build goals-view (:goals app))))))
     app-state
     {:target (. js/document (getElementById "app"))}))
