@@ -51,7 +51,7 @@
             (om/set-state! owner :changing-goal (assoc changing-goal field value))
             (recur)))))
     om/IRenderState
-    (render-state [_ {:keys [chan goal-changes changing-goal]}]
+    (render-state [_ {:keys [chan goal-changes changing-goal is-editing?]}]
       (apply dom/form #js {:className "row"}
         (concat
           (for [label ["Name" "Amount" "Start" "End"]]
@@ -63,7 +63,7 @@
              (dom/a #js {:onClick #(put! chan {:event :add-goal
                                                :goal changing-goal})
                          :className "button tiny"}
-                    "Create Goal"))])))))
+                    (if is-editing? "Update Goal" "Create Goal")))])))))
 
 (defn goal-view
   [goal owner]
@@ -83,7 +83,8 @@
     om/IRenderState
     (render-state [_ {:keys [is-editing? goal-updates]}]
       (if is-editing?
-        (om/build goal-edit-view goal {:init-state {:chan goal-updates}})
+        (om/build goal-edit-view goal {:init-state {:chan goal-updates
+                                                    :is-editing? true}})
         (dom/div #js {:className "row"}
           (dom/div #js {:className "small-3 columns"} (:name goal))
           (dom/div #js {:className "small-2 columns"} (:saved goal))
