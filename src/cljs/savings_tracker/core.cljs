@@ -2,7 +2,9 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [om.core :as om :include-macros true]
             [om.dom :as dom :include-macros true]
-            [cljs.core.async :refer [put! <! chan]]))
+            [cljs.core.async :refer [put! <! chan]]
+            [cljs-time.core :as t]
+            [cljs-time.format :as f]))
 
 (def app-state (atom {:balance 1000
                       :goals [{:name "Vacation"
@@ -15,6 +17,9 @@
                                :end "2015-04-03T00:00:00Z"
                                :amount 500
                                :saved 259.45}]}))
+
+(def rfc-formatter (f/formatters :date-time-no-ms))
+(def display-formatter (f/formatter "MMM d, yyyy"))
 
 (defn add-goal
   [goals goal]
@@ -65,6 +70,10 @@
                          :className "button tiny"}
                     (if is-editing? "Update Goal" "Create Goal")))])))))
 
+(defn currency
+  [number]
+  (.format (js/numeral number) "$0,0[.]00"))
+
 (defn goal-view
   [goal owner]
   (reify
@@ -87,9 +96,9 @@
                                                     :is-editing? true}})
         (dom/div #js {:className "row"}
           (dom/div #js {:className "small-3 columns"} (:name goal))
-          (dom/div #js {:className "small-2 columns"} (:saved goal))
-          (dom/div #js {:className "small-2 columns"} (:amount goal))
-          (dom/div #js {:className "small-3 columns"} (:end goal))
+          (dom/div #js {:className "small-2 columns"} (currency (:saved goal)))
+          (dom/div #js {:className "small-2 columns"} (currency (:amount goal)))
+          (dom/div #js {:className "small-3 columns"} (f/unparse display-formatter (f/parse rfc-formatter (:end goal))))
           (dom/div #js {:className "small-2 columns"}
             (dom/a #js {:onClick #(om/set-state! owner :is-editing? true)}
               (dom/i #js {:className "fi-pencil"}))))))))
@@ -122,7 +131,7 @@
         (dom/div #js {:className "row labels"}
           (dom/div #js {:className "small-3 columns"} "Goal")
           (dom/div #js {:className "small-2 columns"} "Amount Saved")
-          (dom/div #js {:className "small-2 columns"} "Amount to Save")
+          (dom/div #js {:className "small-2 columns"} "Goal Amount")
           (dom/div #js {:className "small-3 columns"} "Save by When?")
           (dom/div #js {:className "small-2 columns"} "Actions"))
         (om/build-all goal-view goals)))))
@@ -138,7 +147,7 @@
               (dom/div #js {:className "small-5 columns"}
                 (dom/h1 nil "Savings Tracker"))
               (dom/div #js {:className "small-7 columns"}
-                (dom/h2 #js {:className "right"} (str "Balance: " (:balance app)))))
+                (dom/h2 #js {:className "right"} (str "Balance: " (currency (:balance app))))))
             (om/build goals-view (:goals app))))))
     app-state
     {:target (. js/document (getElementById "app"))}))
