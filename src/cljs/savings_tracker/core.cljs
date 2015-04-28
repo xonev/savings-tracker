@@ -91,9 +91,8 @@
           (dom/div #js {:className "small-2 columns"} (:amount goal))
           (dom/div #js {:className "small-3 columns"} (:end goal))
           (dom/div #js {:className "small-2 columns"}
-            (dom/a #js {:onClick #(om/set-state! owner :is-editing? true)
-                        :className "button tiny"}
-                   "Edit")))))))
+            (dom/a #js {:onClick #(om/set-state! owner :is-editing? true)}
+              (dom/i #js {:className "fi-pencil"}))))))))
 
 (defn goals-view
   [goals owner]
@@ -120,6 +119,12 @@
               (dom/a #js {:onClick #(om/set-state! owner :adding-goal? true)
                           :className "button tiny"}
                      "Add Goal"))))
+        (dom/div #js {:className "row labels"}
+          (dom/div #js {:className "small-3 columns"} "Goal")
+          (dom/div #js {:className "small-2 columns"} "Amount Saved")
+          (dom/div #js {:className "small-2 columns"} "Amount to Save")
+          (dom/div #js {:className "small-3 columns"} "Save by When?")
+          (dom/div #js {:className "small-2 columns"} "Actions"))
         (om/build-all goal-view goals)))))
 
 (defn main []
