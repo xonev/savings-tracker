@@ -25,20 +25,45 @@
   [goals goal]
   (om/transact! goals #(conj % goal)))
 
-(defn input-view
+(defmulti input-view (fn [_ _ {:keys [type]}] type))
+
+(defmethod input-view :default
+  [value owner _]
+  (reify
+    om/IRenderState
+    (render-state [owner {:keys [field chan]}]
+      (dom/input #js {:onChange #(put! chan {:field field
+                                             :value (.. % -target -value)})
+                                          :type "text"
+                                          :value value}))))
+
+(defn field-entry-view
   [goal owner]
   (reify
     om/IRenderState
-    (render-state [owner {:keys [label field chan]}]
+    (render-state [owner {:keys [label field] :as field-config}]
+      (.log js/console (goal field))
       (dom/div #js {:className "large-6 columns"}
         (dom/label #js {:className "row collapse"}
           (dom/div #js {:className "small-3 columns"}
             (dom/span #js {:className "prefix"} label))
           (dom/div #js {:className "small-9 columns"}
-            (dom/span nil (dom/input #js {:onChange #(put! chan {:field field
-                                                                 :value (.. % -target -value)})
-                                          :type "text"
-                                          :value (goal field)}))))))))
+            (dom/span nil (om/build input-view (goal field) {:init-state field-config
+                                                             :opts {:type {:type field-config}}}))))))))
+
+(def goal-field-configs
+  [{:label "Name"
+    :field :name
+    :type :text}
+   {:label "Amount"
+    :field :amount
+    :type :currency}
+   {:label "Start"
+    :field :start
+    :type :date}
+   {:label "End"
+    :field :end
+    :type :date}])
 
 (defn goal-edit-view
   [goal owner]
@@ -59,11 +84,9 @@
     (render-state [_ {:keys [chan goal-changes changing-goal is-editing?]}]
       (apply dom/form #js {:className "row"}
         (concat
-          (for [label ["Name" "Amount" "Start" "End"]]
-            (om/build input-view changing-goal {:init-state
-                                                {:label label
-                                                 :field (keyword (.toLowerCase label))
-                                                 :chan goal-changes}}))
+          (for [field-config goal-field-configs]
+            (om/build field-entry-view changing-goal {:init-state
+                                                      (merge field-config {:chan goal-changes})}))
           [(dom/div #js {:className "columns"}
              (dom/a #js {:onClick #(put! chan {:event :add-goal
                                                :goal changing-goal})
