@@ -1,3 +1,17 @@
 .labels {
   font-weight: bold;
 }
+
+.picker__holder {
+  cursor: auto;
+}
+
+.picker__holder button {
+  color: black;
+}
+
+.picker__holder table tr td,
+.picker__holder table tr th {
+  text-align: center;
+  line-height: 1rem;
+}

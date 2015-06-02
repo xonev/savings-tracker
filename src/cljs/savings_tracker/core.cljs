@@ -4,7 +4,8 @@
             [om.dom :as dom :include-macros true]
             [cljs.core.async :refer [put! <! chan]]
             [cljs-time.core :as t]
-            [cljs-time.format :as f]))
+            [cljs-time.format :as f]
+            [savings-tracker.datepicker :refer [datepicker-view]]))
 
 (def app-state (atom {:balance 1000
                       :goals [{:name "Vacation"
@@ -27,11 +28,15 @@
 
 (defmulti input-view (fn [_ _ {:keys [type]}] type))
 
+(defmethod input-view :date
+  [value owner _]
+  (datepicker-view value owner))
+
 (defmethod input-view :default
   [value owner _]
   (reify
     om/IRenderState
-    (render-state [owner {:keys [field chan]}]
+    (render-state [_ {:keys [field chan]}]
       (dom/input #js {:onChange #(put! chan {:field field
                                              :value (.. % -target -value)})
                                           :type "text"
@@ -41,15 +46,14 @@
   [goal owner]
   (reify
     om/IRenderState
-    (render-state [owner {:keys [label field] :as field-config}]
-      (.log js/console (goal field))
+    (render-state [_ {:keys [label field] :as field-config}]
       (dom/div #js {:className "large-6 columns"}
         (dom/label #js {:className "row collapse"}
           (dom/div #js {:className "small-3 columns"}
             (dom/span #js {:className "prefix"} label))
           (dom/div #js {:className "small-9 columns"}
             (dom/span nil (om/build input-view (goal field) {:init-state field-config
-                                                             :opts {:type {:type field-config}}}))))))))
+                                                             :opts (select-keys field-config [:type])}))))))))
 
 (def goal-field-configs
   [{:label "Name"
