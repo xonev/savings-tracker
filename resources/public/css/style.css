@@ -10,6 +10,11 @@
   color: black;
 }
 
+.picker__holder select {
+  height: 2rem;
+  margin-bottom: 0;
+}
+
 .picker__holder table tr td,
 .picker__holder table tr th {
   text-align: center;

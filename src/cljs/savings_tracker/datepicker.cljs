@@ -9,10 +9,11 @@
     om/IDidMount
     (did-mount [_]
       (let [input (om/get-node owner "date-field")]
-        (.pickadate (js/$ input))))
+        (.pickadate (js/$ input)
+                    (clj->js {:selectYears true
+                              :selectMonths true}))))
     om/IRenderState
     (render-state [_ {:keys [label field chan]}]
       (dom/input #js {:type "text"
                       :ref "date-field"
                       :value date}))))
-
