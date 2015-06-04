@@ -8,16 +8,18 @@
   (let [context (js->clj context :keywordize-keys true)]
     (when (:select context)
       (put! channel {:field field
-                     :value (.get picker "select" "yyyy-mm-dd")}))))
+                     :value (.get picker "select" "yyyy-mm-dd")})
+      (.close picker true))))
 
 (defn datepicker-view
-  [date owner]
+  [{date :value :keys [container-id]} owner]
   (reify
     om/IDidMount
     (did-mount [_]
       (let [input (om/get-node owner "date-field")
             $input (.pickadate (js/$ input)
-                               (clj->js {:selectYears true
+                               (clj->js {:container (str "#" container-id)
+                                         :selectYears true
                                          :selectMonths true
                                          :format "mmm d, yyyy"
                                          :formatSubmit "yyyy-mm-dd"}))

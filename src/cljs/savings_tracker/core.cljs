@@ -5,15 +5,18 @@
             [cljs.core.async :refer [put! <! chan]]
             [cljs-time.core :as t]
             [cljs-time.format :as f]
+            [cljs-uuid-utils.core :as uuid]
             [savings-tracker.datepicker :refer [datepicker-view]]))
 
 (def app-state (atom {:balance 1000
-                      :goals [{:name "Vacation"
+                      :goals [{:id "114c5892-a7a4-44ff-b486-b479448cfc83"
+                               :name "Vacation"
                                :start "2015-01-03"
                                :end "2015-04-03"
                                :amount 1450.50
                                :saved 1200}
-                              {:name "Tires"
+                              {:id "f2feb01d-d3f1-4a13-b1c1-0a8c5c236e98"
+                               :name "Tires"
                                :start "2015-01-03"
                                :end "2015-04-03"
                                :amount 500
@@ -29,11 +32,11 @@
 (defmulti input-view (fn [_ _ {:keys [type]}] type))
 
 (defmethod input-view :date
-  [value owner _]
-  (datepicker-view value owner))
+  [config owner _]
+  (datepicker-view config owner))
 
 (defmethod input-view :default
-  [value owner _]
+  [{:keys [value]} owner _]
   (reify
     om/IRenderState
     (render-state [_ {:keys [field chan]}]
@@ -47,13 +50,17 @@
   (reify
     om/IRenderState
     (render-state [_ {:keys [label field] :as field-config}]
-      (dom/div #js {:className "large-6 columns"}
-        (dom/label #js {:className "row collapse"}
-          (dom/div #js {:className "small-3 columns"}
-            (dom/span #js {:className "prefix"} label))
-          (dom/div #js {:className "small-9 columns"}
-            (dom/span nil (om/build input-view (goal field) {:init-state field-config
-                                                             :opts (select-keys field-config [:type])}))))))))
+      (let [container-id (str (name field) "-container-" (:id goal))]
+        (dom/div #js {:className "large-6 columns" :id container-id}
+          (dom/label #js {:className "row collapse"}
+            (dom/div #js {:className "small-3 columns"}
+              (dom/span #js {:className "prefix"} label))
+            (dom/div #js {:className "small-9 columns"}
+              (dom/span nil (om/build input-view
+                                      {:value (goal field)
+                                       :container-id container-id}
+                                      {:init-state field-config
+                                       :opts (select-keys field-config [:type])})))))))))
 
 (def goal-field-configs
   [{:label "Name"
@@ -149,7 +156,7 @@
     (render-state [_ {:keys [goals-updates adding-goal?]}]
       (apply dom/div nil
         (if adding-goal?
-          (om/build goal-edit-view {} {:init-state {:chan goals-updates}})
+          (om/build goal-edit-view {:id (uuid/make-random-uuid)} {:init-state {:chan goals-updates}})
           (dom/div #js {:className "row"}
             (dom/div #js {:className "columns"}
               (dom/a #js {:onClick #(om/set-state! owner :adding-goal? true)

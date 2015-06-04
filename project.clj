@@ -10,6 +10,7 @@
   :test-paths ["spec/clj"]
 
   :dependencies [[com.andrewmcveigh/cljs-time "0.3.4"]
+                 [com.lucasbradstreet/cljs-uuid-utils "1.0.1"]
                  [org.clojure/clojure "1.7.0-beta2"]
                  [org.clojure/clojurescript "0.0-3269" :scope "provided"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
