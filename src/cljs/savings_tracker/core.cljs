@@ -9,17 +9,17 @@
 
 (def app-state (atom {:balance 1000
                       :goals [{:name "Vacation"
-                               :start "2015-01-03T00:00:00Z"
-                               :end "2015-04-03T00:00:00Z"
+                               :start "2015-01-03"
+                               :end "2015-04-03"
                                :amount 1450.50
                                :saved 1200}
                               {:name "Tires"
-                               :start "2015-01-03T00:00:00Z"
-                               :end "2015-04-03T00:00:00Z"
+                               :start "2015-01-03"
+                               :end "2015-04-03"
                                :amount 500
                                :saved 259.45}]}))
 
-(def rfc-formatter (f/formatters :date-time-no-ms))
+(def rfc-formatter (f/formatters :date))
 (def display-formatter (f/formatter "MMM d, yyyy"))
 
 (defn add-goal
