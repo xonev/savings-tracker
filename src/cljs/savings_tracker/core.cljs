@@ -29,6 +29,10 @@
   [goals goal]
   (om/transact! goals #(conj % goal)))
 
+(defn remove-goal
+  [goals goal]
+  (om/transact! goals (fn [goals] (vec (remove #(= % goal) goals)))))
+
 (defmulti input-view (fn [_ _ {:keys [type]}] type))
 
 (defmethod input-view :date
@@ -124,7 +128,7 @@
             (om/set-state! owner :is-editing? false)
             (recur)))))
     om/IRenderState
-    (render-state [_ {:keys [is-editing? goal-updates]}]
+    (render-state [_ {:keys [chan is-editing? goal-updates]}]
       (if is-editing?
         (om/build goal-edit-view goal {:init-state {:chan goal-updates
                                                     :is-editing? true}})
@@ -134,8 +138,13 @@
           (dom/div #js {:className "small-2 columns"} (currency (:amount goal)))
           (dom/div #js {:className "small-3 columns"} (f/unparse display-formatter (f/parse rfc-formatter (:end goal))))
           (dom/div #js {:className "small-2 columns"}
-            (dom/a #js {:onClick #(om/set-state! owner :is-editing? true)}
-              (dom/i #js {:className "fi-pencil"}))))))))
+            (dom/a #js {:className "action"
+                        :onClick #(om/set-state! owner :is-editing? true)}
+              (dom/i #js {:className "fi-pencil"}))
+            (dom/a #js {:className "action"}
+              (dom/i #js {:className "fi-trash"
+                          :onClick #(put! chan {:event :remove-goal
+                                                :goal goal})}))))))))
 
 (defn goals-view
   [goals owner]
@@ -149,7 +158,12 @@
       (let [goals-updates (om/get-state owner :goals-updates)]
         (go-loop []
           (let [{:keys [event goal]} (<! goals-updates)]
-            (add-goal goals goal)
+            (cond
+              (= event :add-goal)
+              (add-goal goals goal)
+
+              (= event :remove-goal)
+              (remove-goal goals goal))
             (om/set-state! owner :adding-goal? false)
             (recur)))))
     om/IRenderState
@@ -168,7 +182,7 @@
           (dom/div #js {:className "small-2 columns"} "Goal Amount")
           (dom/div #js {:className "small-3 columns"} "Save by When?")
           (dom/div #js {:className "small-2 columns"} "Actions"))
-        (om/build-all goal-view goals)))))
+        (om/build-all goal-view goals {:init-state {:chan goals-updates}})))))
 
 (defn main []
   (om/root
