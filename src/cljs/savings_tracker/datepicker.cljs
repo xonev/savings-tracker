@@ -24,7 +24,7 @@
                                          :format "mmm d, yyyy"
                                          :formatSubmit "yyyy-mm-dd"}))
             picker (.pickadate $input "picker")]
-        (.on picker "set" (partial on-set picker (om/get-state owner :chan) (om/get-state owner :field)))))
+        (.on picker "set" (partial on-set picker (om/get-state owner :changes-chan) (om/get-state owner :field)))))
     om/IRender
     (render [_]
       (dom/input #js {:type "text"
