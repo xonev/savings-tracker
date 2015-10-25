@@ -5,14 +5,16 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
   :source-paths ["src/clj"]
-:repl-options {:timeout 200000} ;; Defaults to 30000 (30 seconds)
+  :repl-options {:timeout 200000} ;; Defaults to 30000 (30 seconds)
 
   :test-paths ["spec/clj"]
 
   :dependencies [[com.andrewmcveigh/cljs-time "0.3.4"]
+                 [com.cognitect/transit-cljs "0.8.225"]
                  [com.lucasbradstreet/cljs-uuid-utils "1.0.1"]
+                 [com.stuartsierra/component "0.3.0"]
                  [org.clojure/clojure "1.7.0-beta2"]
-                 [org.clojure/clojurescript "0.0-3269" :scope "provided"]
+                 [org.clojure/clojurescript "1.7.48" :scope "provided"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [ring "1.3.2"]
                  [ring/ring-defaults "0.1.3"]
