@@ -1,22 +1,31 @@
-(ns savings-tracker.local-storage)
+(ns savings-tracker.local-storage
+  (:require [com.stuartsierra.component :as component]))
 
 (defrecord LocalStorage []
   component/Lifecycle
 
-  (start [this] this)
-  (stop [this] this))
+  (start [this]
+    (let [localStorage (aget js/window "localStorage")]
+      (merge this {:set-item! #(.setItem localStorage %1 %2)
+                   :get-item #(.getItem localStorage %1)
+                   :remove-item! #(.removeItem localStorage %1)})))
+  (stop [this]
+    (merge this {:set-item! nil
+                 :get-item nil
+                 :remove-item! nil})))
+
+(defn new-store []
+  (map->LocalStorage {}))
 
 (defn set-item!
-  "Set `key' in browser's localStorage to `val`."
-  [key val]
-  (.setItem (.-localStorage js/window) key val))
+  [{:keys [set-item!]} key val]
+  (set-item! key val))
 
 (defn get-item
-  "Returns value of `key' from browser's localStorage."
-  [key]
-  (.getItem (.-localStorage js/window) key))
+  [{:keys [get-item]} key]
+  (get-item key))
 
 (defn remove-item!
-  "Remove the browser's localStorage value for the given `key`"
-  [key]
-  (.removeItem (.-localStorage js/window) key))
+  [{:keys [remove!]} key]
+  (remove-item! key))
+

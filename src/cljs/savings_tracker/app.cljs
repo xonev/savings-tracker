@@ -10,11 +10,15 @@
             [savings-tracker.datepicker :refer [datepicker-view]]
             [savings-tracker.persistence :refer [persist]]))
 
+(declare run)
+
 (defrecord App [persister]
   component/Lifecycle
 
   (start [this]
-    (assoc this :persister persister))
+    (-> this
+      (assoc :persister persister)
+      (run)))
 
   (stop [this]
     (assoc this :persister nil)))
