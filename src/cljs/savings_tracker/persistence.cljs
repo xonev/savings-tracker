@@ -9,6 +9,7 @@
   (start [this]
     (-> this
       (assoc :json-writer (t/writer :json-verbose))
+      (assoc :json-reader (t/reader :json-verbose))
       (assoc :store store)
       (assoc :key storage-key)))
 
@@ -26,3 +27,9 @@
   [{:keys [json-writer store storage-key]} data]
   (let [serialized (t/write json-writer data)]
     (set-item! store storage-key serialized)))
+
+(defn retrieve
+  [persister]
+  (let [{:keys [json-reader store storage-key]} persister
+        item (get-item store storage-key)]
+    (if item (t/read json-reader item))))

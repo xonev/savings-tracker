@@ -8,7 +8,7 @@
             [cljs-uuid-utils.core :as uuid]
             [com.stuartsierra.component :as component]
             [savings-tracker.datepicker :refer [datepicker-view]]
-            [savings-tracker.persistence :refer [persist]]))
+            [savings-tracker.persistence :refer [persist retrieve]]))
 
 (declare run)
 
@@ -27,18 +27,7 @@
   (map->App {}))
 
 (def app-state (atom {:balance 1000
-                      :goals [{:id "114c5892-a7a4-44ff-b486-b479448cfc83"
-                               :name "Vacation"
-                               :start "2015-01-03"
-                               :end "2015-04-03"
-                               :amount 1450.50
-                               :saved 1200}
-                              {:id "f2feb01d-d3f1-4a13-b1c1-0a8c5c236e98"
-                               :name "Tires"
-                               :start "2015-01-03"
-                               :end "2015-04-03"
-                               :amount 500
-                               :saved 259.45}]}))
+                      :goals []}))
 
 (def rfc-formatter (f/formatters :date))
 (def display-formatter (f/formatter "MMM d, yyyy"))
@@ -217,7 +206,9 @@
               (dom/div #js {:className "small-7 columns"}
                 (dom/h2 #js {:className "right"} (str "Balance: " (currency (:balance app))))))
             (om/build goals-view (:goals app))))))
-    app-state
+    (atom (or (retrieve persister)
+              {:balance 0
+               :goals []}))
     {:target (. js/document (getElementById "app"))
      :tx-listen (fn [tx-data root-cursor]
                   (persist persister (om/value root-cursor)))}))
