@@ -4,7 +4,8 @@
             [com.stuartsierra.component :as component]
             [savings-tracker.pages.goals :refer [goals-view]]
             [savings-tracker.persistence :refer [persist retrieve]]
-            [savings-tracker.util.presentation :as p]))
+            [savings-tracker.util.presentation :as p]
+            [savings-tracker.router :refer [navigate!]]))
 
 (declare run)
 
@@ -23,13 +24,18 @@
   (map->App {}))
 
 (defn run
-  [{:keys [persister]}]
+  [{:keys [persister router]}]
   (om/root
     (fn [app owner]
       (reify
         om/IRender
         (render [_]
           (dom/div nil
+            (dom/a #js {:href "/test"
+                        :onClick (fn [e]
+                                   (.preventDefault e)
+                                   (navigate! router "test"))}
+                   "Test")
             (dom/div #js {:className "row"}
               (dom/div #js {:className "small-5 columns"}
                 (dom/h1 nil "Savings Tracker"))
