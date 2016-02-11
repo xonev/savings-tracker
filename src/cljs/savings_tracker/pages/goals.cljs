@@ -6,8 +6,7 @@
             [cljs-time.core :as t]
             [cljs-time.format :as f]
             [cljs-uuid-utils.core :as uuid]
-            [com.stuartsierra.component :as component]
-            [savings-tracker.datepicker :refer [datepicker-view]]
+            [savings-tracker.components.datepicker :refer [datepicker-view]]
             [savings-tracker.util.presentation :as p]))
 
 (def rfc-formatter (f/formatters :date))
