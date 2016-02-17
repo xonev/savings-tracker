@@ -1,12 +1,16 @@
 (ns savings-tracker.router
   (:require [com.stuartsierra.component :as component]
-            [secretary.core :as secretary :refer-macros [defroute]]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [savings-tracker.app :as application]
+            [savings-tracker.routes :as routes])
   (:import [goog.history Html5History EventType]
            [goog.events]))
 
+(declare new-history)
 (declare start-history)
 (declare stop-history)
+(declare run-app)
+(declare dispatch-route!)
 
 (deftype TokenTransformer []
   Object
@@ -19,19 +23,31 @@
   component/Lifecycle
 
   (start [this]
-    (assoc this :history (start-history)))
+    (let [this (as-> this t
+                   (merge t
+                          {:history (new-history)
+                           :app app})
+                   (assoc t :history (start-history t)))]
+      (run-app this app)
+      this))
 
   (stop [this]
     (stop-history this)
-    (assoc this :history nil)))
+    (merge this {:history nil
+                 :app nil})))
 
 (defn new-router []
   (map->Router {}))
 
-(defn start-history []
+(defn new-history []
   (doto (Html5History. js/window (TokenTransformer.))
-    (.setUseFragment false)
-    (goog.events/listen EventType.NAVIGATE #(js/console.log %))
+      (.setUseFragment false)))
+
+(defn start-history [router]
+  (doto (:history router)
+    (goog.events/listen
+      EventType.NAVIGATE
+      #(dispatch-route! router (aget % "token")))
     (.setEnabled true)))
 
 (defn stop-history
@@ -43,3 +59,13 @@
 (defn navigate!
   [{:keys [history]} token]
   (.setToken history token))
+
+(defn dispatch-route!
+  [router url]
+  (if-let [matched-route (routes/match-route url)]
+    (application/update-state! (:app router) [:route] (:handler matched-route))
+    (application/update-state! (:app router) [:route] :404)))
+
+(defn run-app
+  [router app]
+  (application/run app router))

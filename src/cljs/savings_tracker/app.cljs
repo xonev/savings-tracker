@@ -4,8 +4,7 @@
             [com.stuartsierra.component :as component]
             [savings-tracker.pages.goals :refer [goals-view]]
             [savings-tracker.persistence :refer [persist retrieve]]
-            [savings-tracker.util.presentation :as p]
-            [savings-tracker.router :refer [navigate!]]))
+            [savings-tracker.util.presentation :as p]))
 
 (declare run)
 
@@ -13,39 +12,50 @@
   component/Lifecycle
 
   (start [this]
-    (-> this
-      (assoc :persister persister)
-      (run)))
+      (merge this
+             {:persister persister
+              :state (atom (or (retrieve persister)
+                               {:balance 0
+                                :route :index
+                                :goals []}))}))
 
   (stop [this]
-    (assoc this :persister nil)))
+    (merge this {:persister nil
+                 :state nil})))
 
 (defn new-app []
   (map->App {}))
 
+(defn transact-state! [app & args]
+  "This function should be called in the same manner as om/update! but with the
+  app component as the first argument instead of a cursor"
+  (apply om/transact! (om/ref-cursor (om/root-cursor (:state app))) args))
+
+(defn update-state! [app & args]
+  "This function should be called in the same manner as om/update! but with the
+  app component as the first argument instead of a cursor"
+  (apply om/update! (om/ref-cursor (om/root-cursor (:state app))) args))
+
 (defn run
-  [{:keys [persister router]}]
+  [{:keys [persister state]} router]
   (om/root
     (fn [app owner]
       (reify
         om/IRender
         (render [_]
-          (dom/div nil
-            (dom/a #js {:href "/test"
-                        :onClick (fn [e]
-                                   (.preventDefault e)
-                                   (navigate! router "test"))}
-                   "Test")
-            (dom/div #js {:className "row"}
-              (dom/div #js {:className "small-5 columns"}
-                (dom/h1 nil "Savings Tracker"))
-              (dom/div #js {:className "small-7 columns"}
-                (dom/h2 #js {:className "right"} (str "Balance: " (p/currency (:balance app))))))
-            (om/build goals-view (:goals app))))))
-    (atom (or (retrieve persister)
-              {:balance 0
-               :goals []}))
+          (case (:route app)
+            :index (dom/div nil
+                     (dom/div #js {:className "row"}
+                       (dom/div #js {:className "small-5 columns"}
+                         (dom/h1 nil "Savings Tracker"))
+                       (dom/div #js {:className "small-7 columns"}
+                         (dom/h2 #js {:className "right"} (str "Balance: " (p/currency (:balance app))))))
+                     (om/build goals-view (:goals app)))
+            :login (dom/div nil "Login!")
+            (dom/div nil "404!")))))
+    state
     {:target (. js/document (getElementById "app"))
+     :shared {:router router}
      :tx-listen (fn [tx-data root-cursor]
                   (persist persister (om/value root-cursor)))}))
 

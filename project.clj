@@ -18,7 +18,7 @@
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
                  [ring "1.3.2"]
                  [ring/ring-defaults "0.1.3"]
-                 [secretary "1.2.3"]
+                 [bidi "1.25.1"]
                  [compojure "1.3.4"]
                  [enlive "1.1.5"]
                  [om "0.8.0-rc1"]

@@ -11,10 +11,12 @@
     :persister (component/using
                  (new-persister "savings-tracker")
                  [:store])
-    :router (new-router)
     :app (component/using
            (new-app)
-           [:persister :router])))
+           [:persister])
+    :router (component/using
+              (new-router)
+              [:app])))
 
 (defn main []
   (component/start (app)))
