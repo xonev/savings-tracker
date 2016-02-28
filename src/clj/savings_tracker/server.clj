@@ -1,22 +1,11 @@
 (ns savings-tracker.server
-  (:require [clojure.java.io :as io]
-            [savings-tracker.dev :refer [is-dev? inject-devmode-html browser-repl start-figwheel]]
-            [compojure.core :refer [GET defroutes]]
-            [compojure.route :refer [resources]]
-            [net.cgrand.enlive-html :refer [deftemplate]]
+  (:require [savings-tracker.dev :refer [is-dev? browser-repl start-figwheel]]
             [net.cgrand.reload :refer [auto-reload]]
             [ring.middleware.reload :as reload]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [environ.core :refer [env]]
-            [ring.adapter.jetty :refer [run-jetty]]))
-
-(deftemplate page (io/resource "index.html") []
-  [:body] (if is-dev? inject-devmode-html identity))
-
-(defroutes routes
-  (resources "/")
-  (resources "/react" {:root "react"})
-  (GET "/*" req (page)))
+            [ring.adapter.jetty :refer [run-jetty]]
+            [savings-tracker.routes :refer [routes]]))
 
 (def http-handler
   (if is-dev?

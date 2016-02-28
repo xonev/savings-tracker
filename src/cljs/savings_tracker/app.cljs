@@ -52,6 +52,7 @@
                          (dom/h2 #js {:className "right"} (str "Balance: " (p/currency (:balance app))))))
                      (om/build goals-view (:goals app)))
             :login (dom/div nil "Login!")
+            :register (dom/div nil "Register!")
             (dom/div nil "404!")))))
     state
     {:target (. js/document (getElementById "app"))

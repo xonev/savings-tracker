@@ -13,16 +13,21 @@
                  [com.cognitect/transit-cljs "0.8.225"]
                  [com.lucasbradstreet/cljs-uuid-utils "1.0.1"]
                  [com.stuartsierra/component "0.3.0"]
+                 [migratus "0.8.11"]
                  [org.clojure/clojure "1.7.0-beta2"]
                  [org.clojure/clojurescript "1.7.48" :scope "provided"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [org.clojure/java.jdbc "0.4.2"]
+                 [org.postgresql/postgresql "9.4.1208"]
                  [ring "1.3.2"]
                  [ring/ring-defaults "0.1.3"]
+                 [org.slf4j/slf4j-log4j12 "1.7.9"]
                  [bidi "1.25.1"]
                  [compojure "1.3.4"]
                  [enlive "1.1.5"]
                  [om "0.8.0-rc1"]
-                 [environ "1.0.0"]]
+                 [environ "1.0.0"]
+                 [crypto-password "0.1.3"]]
 
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-environ "1.0.0"]]
@@ -38,6 +43,8 @@
                                         :preamble      ["react/react.min.js"]
                                         :optimizations :none
                                         :pretty-print  true}}}}
+
+  :aliases {"migrate" ["run" "-m" "leiningen.migrate/migrate"]}
 
   :profiles {:dev {:source-paths ["env/dev/clj"]
                    :test-paths ["test/clj"]

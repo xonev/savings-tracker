@@ -2,7 +2,8 @@
   (:require [bidi.bidi :as bidi]))
 
 (def routes ["" {"" :index
-                 "login" :login}])
+                 "login" :login
+                 "user/register" :register}])
 
 (defn match-route
   [url]

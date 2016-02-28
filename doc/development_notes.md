@@ -35,4 +35,28 @@ The benefits of simply updating the application state for each route would be:
 
 ### Secretary Routing
 
-Secretary did not seem suited to my needs because there is no way to pass an arbitrary argument to a route handler. For example, I wanted to write a `navigate!` function that would take a router record and a url as arguments, but secretary's `defroute` does not allow acceptance of arbitrary arguments. I evaluted a couple of other options: [silk](https://github.com/DomKM/silk) and [bidi](https://github.com/juxt/bidi). Both of them looked like they would fit my needs for plenty of flexibility (and I like that they define routes via data instead of macro). I chose bidi because it seemed to be a bit simpler/easier to pick up.
+Secretary did not seem suited to my needs because there is no way to pass an
+arbitrary argument to a route handler. For example, I wanted to write a
+`navigate!` function that would take a router record and a url as arguments,
+but secretary's `defroute` does not allow acceptance of arbitrary arguments. I
+evaluted a couple of other options: [silk](https://github.com/DomKM/silk) and
+[bidi](https://github.com/juxt/bidi). Both of them looked like they would fit
+my needs for plenty of flexibility (and I like that they define routes via data
+instead of macro). I chose bidi because it seemed to be a bit simpler/easier to
+pick up.
+
+### Authentication
+
+I haven't really found an authentication library that I'm very excited about. I
+think that I will want to use a combination of [JSON web
+tokens](https://jwt.io/) and PBKDF2 via
+[crypto-password](https://github.com/weavejester/crypto-password) to store
+passwords. Those are the main areas of concern.
+
+The JWT should be returned when the user is authenticated via whatever form of
+authentication is used. It should have some identifier to uniquely identify the
+user in the payload. I still need to figure out a good way to create/verify
+these JSON web tokens. I think that
+[buddy-sign](https://github.com/funcool/buddy-sign) would work well, but I need
+to decide whether to use it with
+[buddy-auth](https://github.com/funcool/buddy-auth) or not.
