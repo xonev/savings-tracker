@@ -28,25 +28,22 @@ in 21.36 seconds.`, you're ready to go. Browse to
 **Attention: It is not longer needed to run `lein figwheel`
   separately. This is now taken care of behind the scenes**
 
-## Trying it out
+### Database Setup
 
-If all is well you now have a browser window saying 'Hello Chestnut',
-and a REPL prompt that looks like `cljs.user=>`.
-
-Open `resources/public/css/style.css` and change some styling of the
-H1 element. Notice how it's updated instantly in the browser.
-
-Open `src/cljs/savings-tracker/core.cljs`, and change `dom/h1` to
-`dom/h2`. As soon as you save the file, your browser is updated.
-
-In the REPL, type
+Create a local postgresql database called "savings_tracker" with username "savings_tracker" and password "savings_tracker":
 
 ```
-(ns savings-tracker.core)
-(swap! app-state assoc :text "Interactivity FTW")
+$ createuser --pwprompt savings_tracker
+$ createdb --owner=savings_tracker savings_tracker
+$ # To login to the database via cli:
+$ psql savings_tracker savings_tracker
 ```
 
-Notice again how the browser updates.
+Run migrations:
+
+```
+$ lein migrate
+```
 
 ## Deploying to Heroku
 
@@ -81,7 +78,7 @@ Now your app is running at
 
 ## License
 
-Copyright © 2015 Steven Oxley. All rights reserved.
+Copyright © 2016 Steven Oxley. All rights reserved.
 
 ## Chestnut
 

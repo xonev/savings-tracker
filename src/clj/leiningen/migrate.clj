@@ -8,9 +8,9 @@
    :migration-dir "migrations/"
    :migration-table-name "migrations"
    :db {:subprotocol "postgresql"
-        :subname "//127.0.0.1:5432/clojure_test"
-        :user "clojure_test"
-        :password "clojure_test"}})
+        :subname "//127.0.0.1:5432/savings_tracker"
+        :user "savings_tracker"
+        :password "savings_tracker"}})
 
 (defn migrate
   "Manipulate database migrations"
