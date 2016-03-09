@@ -12,6 +12,7 @@
   :dependencies [[com.andrewmcveigh/cljs-time "0.3.4"]
                  [com.cognitect/transit-cljs "0.8.225"]
                  [com.lucasbradstreet/cljs-uuid-utils "1.0.1"]
+                 [com.mchange/c3p0 "0.9.5.2"]
                  [com.stuartsierra/component "0.3.0"]
                  [migratus "0.8.11"]
                  [org.clojure/clojure "1.7.0-beta2"]
