@@ -22,6 +22,7 @@
                  [org.postgresql/postgresql "9.4.1208"]
                  [ring "1.3.2"]
                  [ring/ring-defaults "0.1.3"]
+                 [ring/ring-json "0.4.0"]
                  [org.slf4j/slf4j-log4j12 "1.7.9"]
                  [bidi "1.25.1"]
                  [compojure "1.3.4"]
@@ -50,8 +51,8 @@
   :profiles {:dev {:source-paths ["env/dev/clj"]
                    :test-paths ["test/clj"]
 
-                   :dependencies [[figwheel "0.3.1"]
-                                  [figwheel-sidecar "0.3.1"]
+                   :dependencies [[figwheel "0.3.3"]
+                                  [figwheel-sidecar "0.3.3"]
                                   [com.cemerick/piggieback "0.2.1"]
                                   [org.clojure/tools.nrepl "0.2.10"]
                                   [weasel "0.7.0-SNAPSHOT"]]
